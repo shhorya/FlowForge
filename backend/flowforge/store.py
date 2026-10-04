@@ -158,6 +158,9 @@ class Store:
     def outbox(self, limit=100):
         return self._q("SELECT * FROM outbox ORDER BY id DESC LIMIT ?", (limit,))
 
+    def reset(self):
+        for t in ("workflows", "runs", "node_runs", "events", "records", "outbox"): self._x(f"DELETE FROM {t}")
+
     def stats(self):
         rows = self._q("SELECT status,COUNT(*) c,AVG(duration_ms) a FROM runs GROUP BY status")
         total = sum(r["c"] for r in rows)

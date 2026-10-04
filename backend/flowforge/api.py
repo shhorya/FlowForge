@@ -284,6 +284,12 @@ async def instantiate(tid: str):
 async def outbox(): return store.outbox()
 
 
+@app.post("/reset", summary="Delete all workflows, runs and data (demo reset)")
+async def reset():
+    if os.getenv("FLOWFORGE_ALLOW_RESET", "1") != "1": raise HTTPException(403, "reset is disabled")
+    store.reset(); return {"ok": True}
+
+
 @app.get("/records/{collection}")
 async def records(collection: str): return store.rec_list(collection)
 
