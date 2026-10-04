@@ -5,7 +5,7 @@ import { defaultsFor, fromGraph, layoutTopDown, nextId, toGraph, type FFEdge, ty
 
 export type NodeState = { status: 'running' | 'success' | 'failed' | 'skipped' | 'retrying' | 'cancelled'; duration_ms?: number | null; attempts?: number; error?: string | null; reused?: boolean; handles?: string[] | null; input?: Json; output?: Json; retry?: number }
 export type LiveRun = { id: string; status: string; nodes: Record<string, NodeState>; events: FlowEvent[]; startedAt: number; dry: boolean; detail?: Run }
-export type View = 'Editor' | 'Workflows' | 'Runs' | 'Templates' | 'Outbox' | 'Settings'
+export type View = 'Dashboard' | 'Editor' | 'Workflows' | 'Runs' | 'Templates' | 'Outbox' | 'Settings'
 export type Toast = { id: number; kind: 'ok' | 'err' | 'info'; msg: string }
 type Snap = { nodes: FFNode[]; edges: FFEdge[] }
 
@@ -55,7 +55,7 @@ type S = {
 }
 
 export const useStore = create<S>()((set, get) => ({
-  ready: false, online: null, connError: '', apiUrl: defaultApiUrl, apiKey: '', dark: false, view: 'Editor', catalog: [], specs: {}, workflows: [], templates: [], runs: [], stats: null,
+  ready: false, online: null, connError: '', apiUrl: defaultApiUrl, apiKey: '', dark: false, view: 'Dashboard', catalog: [], specs: {}, workflows: [], templates: [], runs: [], stats: null,
   wf: null, nodes: [], edges: [], dirty: false, saving: false, savedAt: null, selectedId: null, validation: null, payload: '{}', dry: false,
   drawerTab: 'Logs', paletteOpen: true, inspectorOpen: true, drawerOpen: true, run: null, stopStream: null, aiBusy: false, fitTick: 0, paletteCmd: false,
   past: [], future: [], toasts: [],
@@ -74,7 +74,7 @@ export const useStore = create<S>()((set, get) => ({
       const [catalog, workflows, templates] = await Promise.all([api.nodes(), api.workflows(), api.templates()])
       set({ catalog, specs: Object.fromEntries(catalog.map((c) => [c.type, c])), workflows, templates, online: true, connError: '', ready: true })
       get().refreshRuns(); api.stats().then((stats) => set({ stats })).catch(() => {})
-      if (workflows.length && !get().wf) get().openWorkflow(workflows[0])
+      if (workflows.length && !get().wf) { get().openWorkflow(workflows[0]); set({ view: 'Dashboard' }) }
     } catch (e) { set({ online: false, connError: errMsg(e), ready: true }) }
   },
   setConnection: async (url, key) => { try { localStorage.setItem('ff.url', url); localStorage.setItem('ff.key', key) } catch {} set({ ready: false }); await get().init() },
@@ -143,7 +143,7 @@ export const useStore = create<S>()((set, get) => ({
   onConnect: (c) => {
     get().commit(true)
     const label = c.sourceHandle && c.sourceHandle !== 'out' ? c.sourceHandle : undefined
-    set((s) => ({ edges: addEdge({ ...c, type: 'smoothstep', label, sourceHandle: c.sourceHandle || undefined }, s.edges), dirty: true }))
+    set((s) => ({ edges: addEdge({ ...c, id: `e${Date.now()}-${c.source}-${c.sourceHandle || 'out'}-${c.target}`, type: 'smoothstep', label, sourceHandle: c.sourceHandle || undefined } as FFEdge, s.edges), dirty: true }))
   },
   select: (id) => set({ selectedId: id, ...(id ? { inspectorOpen: true } : {}) }),
 

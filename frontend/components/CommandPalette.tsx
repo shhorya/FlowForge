@@ -18,7 +18,7 @@ export default function CommandPalette() {
       { label: 'Auto-layout canvas', hint: 'Canvas', run: () => { s.setView('Editor'); s.autoLayout() } },
       { label: 'New workflow', hint: 'Create', run: () => s.newWorkflow() },
       { label: 'Toggle dark mode', hint: 'Theme', run: s.toggleDark },
-      ...(['Editor', 'Workflows', 'Runs', 'Templates', 'Outbox', 'Settings'] as View[]).map(go),
+      ...(['Dashboard', 'Editor', 'Workflows', 'Runs', 'Templates', 'Outbox', 'Settings'] as View[]).map(go),
       ...s.workflows.map((w) => ({ label: `Open “${w.name}”`, hint: 'Workflow', run: () => s.openWorkflow(w) })),
       ...s.templates.map((t) => ({ label: `Use template: ${t.name}`, hint: 'Template', run: () => s.instantiateTemplate(t.id) })),
       ...s.catalog.map((c) => ({ label: `Add node: ${c.label}`, hint: c.category, run: () => { s.setView('Editor'); s.addNode(c.type, { x: 380 + Math.random() * 80, y: 120 + Math.random() * 200 }) } })),
