@@ -65,11 +65,18 @@ export default function Dashboard() {
       await refresh(); setTimeout(refreshRuns, 1500); toast('ok', 'Demo data loaded: templates added and sample runs executed')
     } catch (e) { toast('err', (e as Error).message) } finally { setBusy('') }
   }
+  const reset = async () => {
+    if (!confirm('Delete ALL workflows, runs and saved data?')) return
+    setBusy('reset')
+    try { await api.reset(); useStore.setState({ wf: null, nodes: [], edges: [], run: null, validation: null }); await refresh(); await refreshRuns(); toast('ok', 'Workspace cleared') }
+    catch (e) { toast('err', (e as Error).message) } finally { setBusy('') }
+  }
   const open = (t: (typeof TILES)[number]) => { setView(t.v); if (t.ai) toast('info', 'Describe a workflow in the bar at the top of the canvas') }
 
   return <motion.div className="page" variants={box} initial="hidden" animate="show">
     <motion.div variants={item}><PageHead title="Dashboard" sub="Your automation workspace at a glance.">
       <button className="top-btn" onClick={seed} disabled={!!busy}>{busy === 'seed' ? 'Loading…' : 'Load demo data'}</button>
+      <button className="top-btn danger" onClick={reset} disabled={!!busy}>{busy === 'reset' ? 'Clearing…' : 'Reset data'}</button>
       <button className="run-btn" onClick={newWorkflow}><Plus size={14} /> New workflow</button></PageHead></motion.div>
 
     <motion.div className="dash-hero" variants={item}>

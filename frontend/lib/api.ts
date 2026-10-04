@@ -64,6 +64,7 @@ export const api = {
   replay: (id: string, dry_run?: boolean) => post<{ run_id: string }>(`/runs/${id}/replay`, dry_run === undefined ? {} : { dry_run }),
   testNode: (type: string, config: Json, input: Json, trigger: Json) => post<{ output: Json; handles: string[] }>('/nodes/test', { type, config, input, trigger, dry_run: true }),
   generate: (prompt: string) => post<Generated>('/ai/generate', { prompt }),
+  reset: () => post<{ ok: boolean }>('/reset'),
   outbox: () => req<{ id: number; run_id: string; to_addr: string; subject: string; body: string; created_at: string }[]>('/outbox'),
   records: (c: string) => req<{ id: number; data: Json; created_at: string }[]>(`/records/${encodeURIComponent(c)}`),
 }

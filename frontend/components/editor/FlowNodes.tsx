@@ -1,5 +1,5 @@
 'use client'
-import { createContext, useContext, useEffect } from 'react'
+import { createContext, useContext, useEffect, useMemo } from 'react'
 import { Handle, Position, useUpdateNodeInternals } from '@xyflow/react'
 import { Check, RotateCcw, X } from 'lucide-react'
 import WarnIcon from '../WarnIcon'
@@ -14,6 +14,7 @@ function useNodeState(id: string) {
   const live = useStore((s) => s.run?.nodes[id])
   return override ? override(id) : live
 }
+function useIssues(id: string) { const v = useStore((s) => s.validation); return useMemo(() => nodeIssues(v, id), [v, id]) }
 const dur = (ms?: number | null) => (ms == null ? '' : ms < 1000 ? `${ms}ms` : `${(ms / 1000).toFixed(2)}s`)
 
 function StatusBits({ st }: { st?: NodeState }) {
@@ -27,7 +28,7 @@ function StatusBits({ st }: { st?: NodeState }) {
 
 export function FlowNodeCard({ id, data, selected }: { id: string; data: FFData; selected?: boolean }) {
   const st = useNodeState(id)
-  const issues = useStore((s) => nodeIssues(s.validation, id))
+  const issues = useIssues(id)
   const Icon = iconFor(data.specType), trig = isTrigger(data.specType), status = st?.status ?? 'idle'
   const detail = summary(data.specType, data.config)
   return <>
@@ -48,7 +49,7 @@ export function FlowNodeCard({ id, data, selected }: { id: string; data: FFData;
 
 export function DecisionNode({ id, data, selected }: { id: string; data: FFData; selected?: boolean }) {
   const st = useNodeState(id)
-  const issues = useStore((s) => nodeIssues(s.validation, id))
+  const issues = useIssues(id)
   const update = useUpdateNodeInternals()
   const Icon = iconFor(data.specType), hs = handlesOf(data.specType, data.config), isIf = data.specType === 'logic.if'
   const key = hs.join('|')
