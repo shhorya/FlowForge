@@ -217,7 +217,7 @@ export const useStore = create<S>()((set, get) => ({
       for (const n of laid) { await sleep(160); set((s) => ({ nodes: [...s.nodes, n], fitTick: s.fitTick + 1 })) }
       await sleep(220); set((s) => ({ edges, fitTick: s.fitTick + 1 }))
       if (get().wf?.name === 'Untitled workflow') get().setName(g.name)
-      get().toast(g.validation.valid ? 'ok' : 'err', `${g.source === 'llm' ? 'Claude' : 'Offline generator'} built ${laid.length} nodes${g.warnings.length ? ' · ' + g.warnings[0] : ''}`)
+      get().toast(g.validation.valid ? 'ok' : 'err', `${g.source === 'llm' ? 'AI' : 'Offline generator'} built ${laid.length} nodes${g.warnings.length ? ' · ' + g.warnings[0] : ''}`)
     } catch (e) { get().toast('err', errMsg(e)) } finally { set({ aiBusy: false }) }
   },
 }))
